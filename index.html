@@ -1,0 +1,35 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mario Mix Step Checker</title>
+<style>body{font-family:sans-serif;max-width:520px;margin:0 auto;padding:12px;background:#f6f1e7;color:#2a2622}
+#banner{padding:10px;border-radius:6px;font-weight:bold;margin-bottom:12px}.ok{background:#bfe8bf}.bad{background:#f2b5b5}
+label{display:block;margin:8px 0}input{width:100%;box-sizing:border-box;padding:6px;font-size:16px}
+#out{font-size:28px;margin:12px 0}pre{white-space:pre-wrap;font-size:13px}</style></head><body>
+<script data-bean-store>(function(){if(typeof location!=='undefined'&&location&&location.protocol==='about:'&&typeof document!=='undefined'&&document.addEventListener){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href^="#"]');if(!a||a.target==='_blank')return;e.preventDefault();try{location.hash=a.getAttribute('href')}catch(x){}},true)}if(typeof window==='undefined')return;try{window.localStorage.getItem('x');return}catch(e){}var d=Object.assign({},window.__BEAN_SAVED||{});function post(){try{parent.postMessage({type:'bean-store',data:d},'*')}catch(e){}}var ls={getItem:function(k){return Object.prototype.hasOwnProperty.call(d,k)?d[k]:null},setItem:function(k,v){d[k]=String(v);post()},removeItem:function(k){delete d[k];post()},clear:function(){d={};post()},key:function(i){return Object.keys(d)[i]||null}};Object.defineProperty(ls,'length',{get:function(){return Object.keys(d).length}});try{Object.defineProperty(window,'localStorage',{value:ls,configurable:true})}catch(e){}})();</script>
+<h1>Mario Mix step checker</h1><div id="banner"></div>
+<label>Keyup time (ms)<input id="k" type="number" value="500"></label>
+<label>Window start (ms)<input id="s" type="number" value="400"></label>
+<label>Window end (ms)<input id="e" type="number" value="600"></label>
+<div id="out"></div><pre id="log"></pre>
+<script>
+function judge(k,s,e){return (k>=s&&k<=e)?'hit':'miss';}
+function brokenJudge(k,s,e){return (k>s&&k<e)?'hit':'miss';}
+function brokenEnd(k,s,e){return (k>=s&&k<e)?'hit':'miss';}
+function valid(s,e){return isFinite(s)&&isFinite(e)&&s<=e;}
+var cases=[[400,400,600,'hit'],[399,400,600,'miss'],[401,400,600,'hit'],[600,400,600,'hit'],[601,400,600,'miss'],[599,400,600,'hit'],[500,500,500,'hit'],[499,500,500,'miss'],[501,500,500,'miss']];
+function run(f){return cases.filter(function(c){return f(c[0],c[1],c[2])!==c[3];});}
+var realFails=run(judge),brokenFails=run(brokenJudge),endFails=run(brokenEnd);
+var validOk=valid(400,600)&&valid(500,500)&&!valid(600,400)&&!valid(NaN,5);
+var lines=[];
+lines.push('real judge: '+(cases.length-realFails.length)+'/'+cases.length+' pass');
+lines.push('broken copy (edges are misses): '+brokenFails.length+' cases fail (must be at least 1)');
+lines.push('broken copy (end edge is a miss): '+endFails.length+' cases fail (must be at least 1)');
+lines.push('window check (backwards and blank rejected): '+(validOk?'pass':'FAIL'));
+var good=realFails.length===0&&brokenFails.length>0&&endFails.length>0&&validOk;
+var b=document.getElementById('banner');b.className=good?'ok':'bad';
+b.textContent=good?'PASS: edges are hits, and both broken copies get caught':'FAIL: checker is not trustworthy';
+document.getElementById('log').textContent=lines.join('\n');
+function upd(){var g=function(i){var t=document.getElementById(i).value;return t===''?NaN:Number(t);};
+var k=g('k'),s=g('s'),e=g('e'),o=document.getElementById('out');
+if(!isFinite(k)||!valid(s,e)){o.textContent='Check the numbers: start must not be after end';return;}
+o.textContent=judge(k,s,e).toUpperCase();}
+['k','s','e'].forEach(function(i){document.getElementById(i).addEventListener('input',upd);});upd();
+</script></body></html>
